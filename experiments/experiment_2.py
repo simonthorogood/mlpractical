@@ -17,7 +17,7 @@ script_template = 'python {0} --experiment_name {1} --num_epochs {2} --num_layer
 
 for dm_type, num_filters  in dim_reduction_types.items():
     for num_layers in num_layer_settings:
-        experiment_name = 'exp1_{0}_{1}'.format(dm_type, num_layers)
+        experiment_name = 'exp2_{0}_{1}'.format(dm_type, num_layers)
         executable = script_template.format(script_path, experiment_name, num_epochs, num_layers, num_filters, dm_type)
 
         print('Starting: ' + executable)
