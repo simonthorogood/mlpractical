@@ -85,7 +85,7 @@ class FCCNetwork(nn.Module):
 
 
 class ConvolutionalNetwork(nn.Module):
-    def __init__(self, input_shape, dim_reduction_type, num_output_classes, num_filters, num_layers, use_bias=False):
+    def __init__(self, input_shape, dim_reduction_type, num_output_classes, num_filters, num_layers, use_bias=False, use_dropout=False):
         """
         Initializes a convolutional network module object.
         :param input_shape: The shape of the inputs going in to the network.
@@ -103,6 +103,8 @@ class ConvolutionalNetwork(nn.Module):
         self.use_bias = use_bias
         self.num_layers = num_layers
         self.dim_reduction_type = dim_reduction_type
+        self.use_dropout = use_dropout
+
         # initialize a module dict, which is effectively a dictionary that can collect layers and integrate them into pytorch
         self.layer_dict = nn.ModuleDict()
         # build the network
@@ -127,6 +129,7 @@ class ConvolutionalNetwork(nn.Module):
             out = self.layer_dict['conv_{}'.format(i)](out)  # use layer on inputs to get an output
             out = F.relu(out)  # apply relu
             print(out.shape)
+
             if self.dim_reduction_type == 'strided_convolution':  # if dim reduction is strided conv, then add a strided conv
                 self.layer_dict['dim_reduction_strided_conv_{}'.format(i)] = nn.Conv2d(in_channels=out.shape[1],
                                                                                        kernel_size=3,
@@ -138,6 +141,7 @@ class ConvolutionalNetwork(nn.Module):
                 out = self.layer_dict['dim_reduction_strided_conv_{}'.format(i)](
                     out)  # use strided conv to get an output
                 out = F.relu(out)  # apply relu to the output
+
             elif self.dim_reduction_type == 'dilated_convolution':  # if dim reduction is dilated conv, then add a dilated conv, using an arbitrary dilation rate of i + 2 (so it gets smaller as we go, you can choose other dilation rates should you wish to do it.)
                 self.layer_dict['dim_reduction_dilated_conv_{}'.format(i)] = nn.Conv2d(in_channels=out.shape[1],
                                                                                        kernel_size=3,
@@ -158,10 +162,17 @@ class ConvolutionalNetwork(nn.Module):
                 out = self.layer_dict['dim_reduction_avg_pool_{}'.format(i)](out)
 
             print(out.shape)
+
         if out.shape[-1] != 2:
             out = F.adaptive_avg_pool2d(out, 2)  # apply adaptive pooling to make sure output of conv layers is always (2, 2) spacially (helps with comparisons).
         print('shape before final linear layer', out.shape)
         out = out.view(out.shape[0], -1)
+
+        if (self.use_dropout):
+            print("adding dropout layer")
+            self.dropout = nn.Dropout(p=0.5)
+            out = self.dropout(out)
+
         self.logit_linear_layer = nn.Linear(in_features=out.shape[1],  # add a linear layer
                                             out_features=self.num_output_classes,
                                             bias=self.use_bias)
@@ -197,6 +208,10 @@ class ConvolutionalNetwork(nn.Module):
 
         if out.shape[-1] != 2:
             out = F.adaptive_avg_pool2d(out, 2)
+
+        if self.use_dropout:
+            out = self.dropout(out)
+
         out = out.view(out.shape[0], -1)  # flatten outputs from (b, c, h, w) to (b, c*h*w)
         out = self.logit_linear_layer(out)  # pass through a linear layer to get logits/preds
         return out
