@@ -1,6 +1,6 @@
 import subprocess
 
-num_epochs = 25
+num_epochs = 75
 num_layers = 4
 num_filters_settings = [16, 32, 48, 64, 96, 128]
 dim_reduction_types = ['no_dr']
