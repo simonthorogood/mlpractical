@@ -1,3 +1,5 @@
+import subprocess
+
 num_epochs = 25
 num_layers = 4
 num_filters = 64
