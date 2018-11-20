@@ -2,7 +2,7 @@ import subprocess
 
 num_epochs = 75
 num_layers = 4
-num_filters_settings = [16, 32, 48, 64, 96, 128]
+num_filters_settings = [16, 32, 48, 64, 96]
 dim_reduction_types = ['no_dr']
 
 script_path = '../mlp/pytorch_experiment_scripts/train_evaluate_emnist_classification_system.py'
