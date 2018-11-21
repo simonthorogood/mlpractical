@@ -1,8 +1,14 @@
 import subprocess
 
-num_epochs = 25
+filter_epoch_lookup = {
+    16: 75,
+    32: 75,
+    48: 50,
+    64: 50,
+    96: 25
+}
+
 num_layers = 4
-num_filters = 64
 dim_reduction_types = ['no_dr', 'strided_convolution', 'dilated_convolution', 'max_pooling', 'avg_pooling']
 wd_vals = [1e-05, 1e-04, 1e-03]
 

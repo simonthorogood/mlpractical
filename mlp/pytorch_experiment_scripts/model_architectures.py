@@ -127,6 +127,12 @@ class ConvolutionalNetwork(nn.Module):
                                                              bias=self.use_bias)
 
             out = self.layer_dict['conv_{}'.format(i)](out)  # use layer on inputs to get an output
+
+            if self.use_dropout in ['3']:
+                self.layer_dict['conv_do_{}'.format(i)] = nn.Dropout2d(p=0.2)
+                out = self.layer_dict['conv_do_{}'.format(i)](out)
+                print("adding conv dropout for layer {}".format(i))
+
             out = F.relu(out)  # apply relu
             print(out.shape)
 
@@ -168,15 +174,21 @@ class ConvolutionalNetwork(nn.Module):
         print('shape before final linear layer', out.shape)
         out = out.view(out.shape[0], -1)
 
-        if (self.use_dropout):
-            print("adding dropout layer")
-            self.dropout = nn.Dropout(p=0.5)
-            out = self.dropout(out)
+        if self.use_dropout in ['1', '2', '3']:
+            print("adding dropout layer 1")
+            self.dropout_1 = nn.Dropout(p=0.5)
+            out = self.dropout_1(out)
 
         self.logit_linear_layer = nn.Linear(in_features=out.shape[1],  # add a linear layer
                                             out_features=self.num_output_classes,
                                             bias=self.use_bias)
         out = self.logit_linear_layer(out)  # apply linear layer on flattened inputs
+
+        if self.use_dropout in ['2', '3']:
+            print("adding dropout layer 2")
+            self.dropout_2 = nn.Dropout(p=0.5)
+            out = self.dropout_2(out)
+
         print("Block is built, output volume is", out.shape)
         return out
 
@@ -190,7 +202,12 @@ class ConvolutionalNetwork(nn.Module):
         for i in range(self.num_layers):  # for number of layers
 
             out = self.layer_dict['conv_{}'.format(i)](out)  # pass through conv layer indexed at i
+
+            if self.use_dropout in ['3']:
+                out = self.layer_dict['conv_do_{}'.format(i)](out)
+
             out = F.relu(out)  # pass conv outputs through ReLU
+
             if self.dim_reduction_type == 'strided_convolution':  # if strided convolution dim reduction then
                 out = self.layer_dict['dim_reduction_strided_conv_{}'.format(i)](
                     out)  # pass previous outputs through a strided convolution indexed i
@@ -209,11 +226,15 @@ class ConvolutionalNetwork(nn.Module):
         if out.shape[-1] != 2:
             out = F.adaptive_avg_pool2d(out, 2)
 
-        if self.use_dropout:
-            out = self.dropout(out)
+        if self.use_dropout in ['1', '2', '3']:
+            out = self.dropout_1(out)
 
         out = out.view(out.shape[0], -1)  # flatten outputs from (b, c, h, w) to (b, c*h*w)
         out = self.logit_linear_layer(out)  # pass through a linear layer to get logits/preds
+
+        if self.use_dropout in ['2', '3']:
+            out = self.dropout_2(out)
+
         return out
 
     def reset_parameters(self):
