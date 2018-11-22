@@ -3,7 +3,7 @@ import subprocess
 num_epochs = 25
 num_filters = 64
 num_layers = 4
-dim_reduction_types = ['no_dr', 'max_pooling', 'dilated_convolution']
+dim_reduction_types = ['dilated_convolution']
 wd_vals = [1e-05, 1e-04, 1e-03]
 
 script_path = '../mlp/pytorch_experiment_scripts/train_evaluate_emnist_classification_system.py'
