@@ -16,5 +16,5 @@ for dm_type  in dim_reduction_types:
 
         print('Starting: ' + executable)
         print()
-        #subprocess.run(executable, shell=True)
+        subprocess.run(executable, shell=True)
         print()
