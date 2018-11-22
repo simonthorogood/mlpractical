@@ -39,8 +39,8 @@ def get_args():
                         help='A flag indicating whether we will use GPU acceleration or not')
     parser.add_argument('--weight_decay_coefficient', nargs="?", type=float, default=1e-05,
                         help='Weight decay to use for Adam')
-    parser.add_argument('--use_dropout', nargs="?", type=str, default='none',
-                        help='Add dropout to the model: 1=single_do; 2=2_do; 3=2do + conv_do')
+    parser.add_argument('--use_dropout', nargs="?", type=str2bool, default=False,
+                        help='Add dropout to the model')
     args = parser.parse_args()
     print(args)
     return args
