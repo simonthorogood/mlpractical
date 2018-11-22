@@ -1,19 +1,13 @@
 import subprocess
 
-filter_epoch_lookup = {
-    16: 75,
-    32: 75,
-    48: 50,
-    64: 50,
-    96: 25
-}
-
+num_epochs = 25
+num_filters = 64
 num_layers = 4
-dim_reduction_types = ['no_dr', 'strided_convolution', 'dilated_convolution', 'max_pooling', 'avg_pooling']
+dim_reduction_types = ['no_dr', 'max_pooling', 'dilated_convolution']
 wd_vals = [1e-05, 1e-04, 1e-03]
 
 script_path = '../mlp/pytorch_experiment_scripts/train_evaluate_emnist_classification_system.py'
-script_template = 'python {0} --experiment_name {1} --num_epochs {2} --num_layers {3} --num_filters {4} --dim_reduction_type {5} --weight_decay_coefficient {6} --use_gpu True'
+script_template = 'python {0} --experiment_name {1} --num_epochs {2} --num_layers {3} --num_filters {4} --dim_reduction_type {5} --weight_decay_coefficient {6} --use_dropout=True --use_gpu True'
 
 for dm_type  in dim_reduction_types:
     for wd_val in wd_vals:
@@ -22,5 +16,5 @@ for dm_type  in dim_reduction_types:
 
         print('Starting: ' + executable)
         print()
-        subprocess.run(executable, shell=True)
+        #subprocess.run(executable, shell=True)
         print()
